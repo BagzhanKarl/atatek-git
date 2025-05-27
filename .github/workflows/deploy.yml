@@ -6,30 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Deploy to server
-  #       uses: appleboy/ssh-action@master
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USERNAME }}
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         script: |
-  #           cd ${{ secrets.PROJECT_PATH }}
-  #           git pull origin main
-  #           docker compose down -v
-  #           export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
-  #           export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-  #           export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-  #           export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-  #           # Перезапускаем только бэкенд, так как у него есть --reload
-  #           docker compose up -d --build
-
-  change-data:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Just pull new data
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -38,27 +18,46 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             git pull origin main
+            docker compose down -v
             export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            # Перезапускаем только бэкенд, так как у него есть --reload
-            docker compose restart backend
+            docker compose up -d --build
 
-  migrate:
-    needs: change-data
-    runs-on: ubuntu-latest
-    steps:
-      - name: Migrate data for alembic
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.PROJECT_PATH }}
-            export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
-            export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            docker compose exec backend alembic upgrade head
+  # change-data:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Just pull new data
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.SSH_USERNAME }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd ${{ secrets.PROJECT_PATH }}
+  #           git pull origin main
+  #           export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+  #           export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+  #           export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+  #           export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+  #           # Перезапускаем только бэкенд, так как у него есть --reload
+  #           docker compose restart backend
+
+  # migrate:
+  #   needs: change-data
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Migrate data for alembic
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.SSH_USERNAME }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd ${{ secrets.PROJECT_PATH }}
+  #           export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+  #           export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+  #           export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+  #           export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+  #           docker compose exec backend alembic upgrade head
