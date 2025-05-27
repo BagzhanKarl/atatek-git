@@ -41,3 +41,13 @@ class RoleService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Ошибка при привязке роли к пользователю"
             )
+
+    async def get_user_role(self, user_id: int):
+        try:
+            user_role = await self.db.execute(select(UserRole).where(UserRole.user_id == user_id))
+            result = user_role.scalars().first()
+            if not result:
+                raise HTTPException(status_code=404, detail="Роль не найдена")
+            return result.role_id
+        except SQLAlchemyError as e:
+            raise HTTPException(status_code=400, detail=str(e))

@@ -34,3 +34,15 @@ class UserPage(Base):
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), server_onupdate=func.now(), nullable=True)            
+
+class PageModerator(Base):
+    __tablename__ = 'page_moderator'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    page_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), server_onupdate=func.now(), nullable=True)

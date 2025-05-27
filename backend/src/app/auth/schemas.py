@@ -20,6 +20,11 @@ class UserResponse(BaseModel):
     role: Optional[BaseRole] = Field(None)
     tariff: Optional[BaseTariff] = Field(None)
     
+class BaseUser(BaseModel):
+    id: int = Field(..., example=1)                             
+    first_name: str = Field(..., example="John")
+    last_name: str = Field(..., example="Doe")
+    phone: str = Field(..., example="+77761174378")
                                                                                         
     
 class LoginUser(BaseModel):
