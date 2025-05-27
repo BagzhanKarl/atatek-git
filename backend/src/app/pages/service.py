@@ -27,6 +27,8 @@ class PageService:
             if not tree_data:
                 raise HTTPException(status_code=400, detail="Запись с таким ID не найдена")
             
+            tree=BaseTree(id=tree_data.id, name=tree_data.name).model_dump()
+            
             new_page = Page(
                 title=page.title,
                 tree_id=page.tree_id,
@@ -45,7 +47,7 @@ class PageService:
             return PageResponse(
                 id=new_page.id,
                 title=new_page.title,
-                tree=BaseTree(id=tree_data.id, name=tree_data.name),
+                tree=tree,
                 bread1=new_page.bread1,
                 bread2=new_page.bread2,
                 bread3=new_page.bread3,
@@ -63,7 +65,12 @@ class PageService:
             if not result:
                 raise HTTPException(status_code=404, detail="Страница не найдена")
             
-            moderators = await self.db.execute(select(User).join(UserPage).where(UserPage.page_id == page_id))
+            moderators = await self.db.execute(
+                select(User)
+                .select_from(User)
+                .join(UserPage, User.id == UserPage.user_id)
+                .where(UserPage.page_id == page_id)
+            )
             moderators_list = [
                 BaseUser(
                     id=moderator.id, 
@@ -82,7 +89,7 @@ class PageService:
             return PageResponse(
                 id=result.id,
                 title=result.title,
-                tree=BaseTree(id=tree_data.id, name=tree_data.name),
+                tree=BaseTree(id=tree_data.id, name=tree_data.name).model_dump(),
                 bread1=result.bread1,
                 bread2=result.bread2,
                 bread3=result.bread3,

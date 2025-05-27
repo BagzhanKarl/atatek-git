@@ -51,5 +51,8 @@ class PageResponse(BaseModel):
     main_gen_child: int = Field(..., description="ID рода внутри жуза", example=15)
     moderators: Optional[list[BaseUser]] = Field(None, description="Список модераторов")
 
+    class Config:
+        from_attributes = True
+
 class PageResponseList(BaseModel):
     pages: list[PageResponse] = Field(..., description="Список страниц")

@@ -25,6 +25,9 @@ class BaseUser(BaseModel):
     first_name: str = Field(..., example="John")
     last_name: str = Field(..., example="Doe")
     phone: str = Field(..., example="+77761174378")
+
+    class Config:
+        from_attributes = True
                                                                                         
     
 class LoginUser(BaseModel):
