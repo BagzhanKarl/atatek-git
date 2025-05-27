@@ -1,6 +1,8 @@
-import uvicorn
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from src.app.config.response import http_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONRespons
+from fastapi.exceptions import HTTPException
 
 
 app = FastAPI(
@@ -9,7 +11,6 @@ app = FastAPI(
     description="Жаңа нұсқа жаңа фреймворкта FastAPI",
 )
 
-from fastapi.exceptions import HTTPException
 app.add_exception_handler(HTTPException, http_exception_handler)
 
 # Обработка ошибок валидации (например, pydantic)
