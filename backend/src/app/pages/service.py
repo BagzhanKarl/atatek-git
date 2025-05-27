@@ -1,4 +1,4 @@
-from backend.src.app.auth.models import User
+from src.app.auth.models import User
 from src.app.pages.models import *
 from src.app.pages.schemas import *
 from src.app.role.service import RoleService
