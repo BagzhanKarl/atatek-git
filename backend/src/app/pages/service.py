@@ -125,7 +125,12 @@ class PageService:
 
     async def moderator_pages(self, user_id: int) -> PageResponseList:
         try:
-            pages = await self.db.execute(select(Page).join(UserPage).where(UserPage.user_id == user_id))
+            pages = await self.db.execute(
+                select(Page)
+                .select_from(Page)
+                .join(UserPage, Page.id == UserPage.page_id)
+                .where(UserPage.user_id == user_id)
+            )
             result = pages.scalars().all()
             if not result:
                 raise HTTPException(status_code=404, detail="Страницы не найдены")
@@ -134,8 +139,8 @@ class PageService:
             for page in result:
                 moderators = await self.db.execute(
                     select(User)
-                    .select_from(User)
-                    .join(UserPage, User.id == UserPage.user_id)
+                    .select_from(UserPage)
+                    .join(User, UserPage.user_id == User.id)
                     .where(UserPage.page_id == page.id)
                 )
                 moderators_list = [
