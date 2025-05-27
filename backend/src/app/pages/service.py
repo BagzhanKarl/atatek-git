@@ -111,6 +111,15 @@ class PageService:
             if not result:
                 raise HTTPException(status_code=404, detail="Страница не найдена")
             
+            existing_moderator = await self.db.execute(
+                select(PageModerator).where(
+                    PageModerator.page_id == page_id, 
+                    PageModerator.user_id == moderator_id
+                )
+            )
+            if existing_moderator.scalar_one_or_none():
+                raise HTTPException(status_code=400, detail="Этот пользователь уже является модератором")
+            
             new_moderator = PageModerator(
                 page_id=page_id,
                 user_id=moderator_id,
