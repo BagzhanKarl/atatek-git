@@ -16,6 +16,22 @@ services:
     networks:
       - app_network
 
+  backend:
+    build: ./backend
+    container_name: backend
+    environment:
+      - TEST_VAR=test_value
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+
   adminer:
     image: adminer
     container_name: adminer
