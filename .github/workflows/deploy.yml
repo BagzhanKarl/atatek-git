@@ -6,10 +6,30 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy to server
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.SSH_USERNAME }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd ${{ secrets.PROJECT_PATH }}
+  #           git pull origin main
+  #           docker compose down -v
+  #           export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+  #           export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+  #           export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+  #           export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+  #           # Перезапускаем только бэкенд, так как у него есть --reload
+  #           docker compose up -d --build
+
+  change-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to server
+      - name: Just pull new data
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -18,10 +38,5 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             git pull origin main
-            docker compose down -v
-            export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
-            export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             # Перезапускаем только бэкенд, так как у него есть --reload
-            docker compose up -d --build
+            docker compose restart backend
