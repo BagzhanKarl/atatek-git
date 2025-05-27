@@ -8,10 +8,10 @@ T = TypeVar("T")
 
 class StandardResponse(BaseModel, Generic[T]):
     status: str = Field(..., example="success")
-    version: str = Field(..., example="1.0.0")
+    version: str = Field(..., example="3.0.0")
     data: T
 
-API_VERSION = "1.0.0"
+API_VERSION = "3.0.0"
 
 def standard_success(data: Any):
     return {

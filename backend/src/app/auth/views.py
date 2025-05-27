@@ -12,16 +12,6 @@ from src.app.config.auth import auth
 
 router = APIRouter()
 
-@router.get("/health-base", response_model=StandardResponse[dict])
-@autowrap
-async def health_check(db: AsyncSession = Depends(get_db)):
-    try:
-        # Пробуем выполнить простой запрос к базе
-        await db.execute(text("SELECT 1"))
-        return {"status": "healthy", "message": "Database connection is working"}
-    except Exception as e:
-        return {"status": "unhealthy", "message": f"Database connection failed: {str(e)}"}
-
 @router.post("/login", response_model=StandardResponse[UserResponse])
 @autowrap
 async def login(user_data: LoginUser, response: Response, db: AsyncSession = Depends(get_db)):

@@ -20,7 +20,7 @@ async def validation_exception_handler(request, exc):
         status_code=422,
         content={
             "status": "error",
-            "version": "1.0.0",
+            "version": "3.0.0",
             "data": {"detail": exc.errors()}
         }
     )
