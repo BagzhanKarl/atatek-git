@@ -237,6 +237,7 @@ class UsersService:
                     price=tariff.price, 
                     t_add_child=tariff.t_add_child, 
                     t_edit_child=tariff.t_edit_child,
+                    t_family_count=tariff.t_family_count
                 ).model_dump(),
             ).model_dump()
         except HTTPException:
