@@ -3,12 +3,13 @@ from src.app.config.response import http_exception_handler
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 
-app = FastAPI(
-    title="Jaai.kz Auth Service",
-    description="Сервис аутентификации для проекта Jaai.kz, предназначенный для безопасной работы с пользователями и управлением доступом.",
-    version="1.0.0",
-)
+from src.app import init_app
 
+app = FastAPI(
+    title="ATATEK - онлайн шежіре",
+    version="3.0.0",
+    description="Жаңа нұсқа жаңа фреймворкта FastAPI",
+)
 # Обработка HTTP ошибок
 app.add_exception_handler(HTTPException, http_exception_handler)
 
@@ -23,3 +24,6 @@ async def validation_exception_handler(request, exc):
             "data": {"detail": exc.errors()}
         }
     )
+
+
+init_app(app)
