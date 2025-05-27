@@ -25,6 +25,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=${POSTGRES_DB}
       - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "8000:8000"
     volumes:
