@@ -5,9 +5,9 @@ import os
 class Settings(BaseSettings):
     HOST: str = os.getenv('DB_HOST', 'localhost')
     PORT: int = int(os.getenv('DB_PORT', '5432')) if os.getenv('DB_PORT', '5432').isdigit() else 5432
-    USER: str = os.getenv('DB_USER', 'jaai_admin')
-    PASSWORD: str = os.getenv('DB_PASSWORD', 'jaai_admin')
-    BASE: str = os.getenv('DB_NAME', 'jaai_base')
+    USER: str = os.getenv('DB_USER', 'atatek_admin')
+    PASSWORD: str = os.getenv('DB_PASSWORD', 'atatek_admin')
+    BASE: str = os.getenv('DB_NAME', 'atatek_admin')
 
     JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', 'secret')
 
