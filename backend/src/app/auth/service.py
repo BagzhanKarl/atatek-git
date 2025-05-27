@@ -3,6 +3,7 @@ from typing import Optional
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from src.app.pages.models import UserPage
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -259,3 +260,24 @@ class UsersService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Ошибка при установке адреса"
             )
+
+    async def set_user_page(self, page_id: int, user_id: int) -> dict:
+        try:
+            existing_user_page = await self.db.execute(select(UserPage).where(UserPage.page_id == page_id, UserPage.user_id == user_id))
+            if existing_user_page.scalar_one_or_none():
+                raise HTTPException(status_code=400, detail="Страница уже привязана к пользователю")
+            
+            user_page = UserPage(
+                page_id=page_id,
+                user_id=user_id,
+            )
+            self.db.add(user_page)
+            await self.db.commit()
+            await self.db.refresh(user_page)
+
+            return {
+                "message": "Страница привязана к пользователю",
+                "user_page": user_page.model_dump()
+            }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))

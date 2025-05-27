@@ -41,6 +41,13 @@ async def set_address(address: int, user_data = Depends(auth.get_user_data_depen
     user = await service.set_address(address, int(user_data["sub"]))
     return user
 
+@router.post("/set-user-page", response_model=StandardResponse[dict])
+@autowrap
+async def set_user_page(page_id: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+    service = UsersService(db)
+    user = await service.set_user_page(page_id, int(user_data["sub"]))
+    return user
+
 
 @router.get("/get-me", response_model=StandardResponse[UserResponse])
 @autowrap
