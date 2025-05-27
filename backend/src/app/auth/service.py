@@ -276,8 +276,7 @@ class UsersService:
             await self.db.refresh(user_page)
 
             return {
-                "message": "Страница привязана к пользователю",
-                "user_page": user_page.model_dump()
+                "message": "Страница привязана к пользователю"
             }
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))

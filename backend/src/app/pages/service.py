@@ -68,8 +68,8 @@ class PageService:
             moderators = await self.db.execute(
                 select(User)
                 .select_from(User)
-                .join(UserPage, User.id == UserPage.user_id)
-                .where(UserPage.page_id == page_id)
+                .join(PageModerator, User.id == PageModerator.user_id)
+                .where(PageModerator.page_id == page_id)
             )
             moderators_list = [
                 BaseUser(
@@ -111,7 +111,7 @@ class PageService:
             if not result:
                 raise HTTPException(status_code=404, detail="Страница не найдена")
             
-            new_moderator = UserPage(
+            new_moderator = PageModerator(
                 page_id=page_id,
                 user_id=moderator_id,
             )
@@ -128,8 +128,8 @@ class PageService:
             pages = await self.db.execute(
                 select(Page)
                 .select_from(Page)
-                .join(UserPage, Page.id == UserPage.page_id)
-                .where(UserPage.user_id == user_id)
+                .join(PageModerator, Page.id == PageModerator.page_id)
+                .where(PageModerator.user_id == user_id)
             )
             result = pages.scalars().all()
             if not result:
@@ -139,9 +139,9 @@ class PageService:
             for page in result:
                 moderators = await self.db.execute(
                     select(User)
-                    .select_from(UserPage)
-                    .join(User, UserPage.user_id == User.id)
-                    .where(UserPage.page_id == page.id)
+                    .select_from(PageModerator)
+                    .join(User, PageModerator.user_id == User.id)
+                    .where(PageModerator.page_id == page.id)
                 )
                 moderators_list = [
                     BaseUser(
