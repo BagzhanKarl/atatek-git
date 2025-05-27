@@ -73,11 +73,16 @@ class PageService:
                     ).model_dump()
                     for moderator in moderators.scalars().all()
                 ]
+            
+            tree_data = await self.db.execute(select(Tree).where(Tree.id == result.tree_id))
+            tree_data = tree_data.scalars().first()
+            if not tree_data:
+                raise HTTPException(status_code=400, detail="Запись с таким ID не найдена")
 
             return PageResponse(
                 id=result.id,
                 title=result.title,
-                tree=BaseTree(id=result.tree_id, name=result.tree.name),
+                tree=BaseTree(id=tree_data.id, name=tree_data.name),
                 bread1=result.bread1,
                 bread2=result.bread2,
                 bread3=result.bread3,

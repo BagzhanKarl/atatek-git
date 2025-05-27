@@ -11,9 +11,9 @@ def init_app(app):
     app.include_router(auth_router, prefix="/auth", tags=["auth"])
     app.include_router(address_router, prefix="/address", tags=["address"])
     app.include_router(tree_router, prefix="/tree", tags=["tree"])
+    app.include_router(pages_router, prefix="/pages", tags=["pages"])
     app.include_router(ticket_router, prefix="/ticket", tags=["ticket"])
     app.include_router(family_router, prefix="/family", tags=["family"])
-    app.include_router(pages_router, prefix="/pages", tags=["pages"])
     app.include_router(db_router, prefix="/db", tags=["db"])
     return app
 
