@@ -1,3 +1,4 @@
+from src.app.tree.models import Tree
 from src.app.auth.models import User
 from src.app.pages.models import *
 from src.app.pages.schemas import *
@@ -21,6 +22,11 @@ class PageService:
             if existing_page.scalar_one_or_none():
                 raise HTTPException(status_code=400, detail="Страница с таким деревом уже существует")
             
+            tree_data = await self.db.execute(select(Tree).where(Tree.id == page.tree_id))
+            tree_data = tree_data.scalars().first()
+            if not tree_data:
+                raise HTTPException(status_code=400, detail="Запись с таким ID не найдена")
+            
             new_page = Page(
                 title=page.title,
                 tree_id=page.tree_id,
@@ -34,10 +40,12 @@ class PageService:
             await self.db.commit()
             await self.db.refresh(new_page)
 
+            
+
             return PageResponse(
                 id=new_page.id,
                 title=new_page.title,
-                tree=BaseTree(id=new_page.tree_id, name=new_page.tree.name),
+                tree=BaseTree(id=tree_data.id, name=tree_data.name),
                 bread1=new_page.bread1,
                 bread2=new_page.bread2,
                 bread3=new_page.bread3,
