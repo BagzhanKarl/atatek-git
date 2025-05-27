@@ -20,13 +20,15 @@ services:
     build: ./backend
     container_name: backend
     environment:
-      - TEST_VAR=test_value
-      - DB_HOST=postgres
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DB_HOST=postgres_db
       - DB_PORT=5432
       - DB_NAME=${POSTGRES_DB}
       - DB_USER=${POSTGRES_USER}
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     depends_on:
       - postgres
     networks:

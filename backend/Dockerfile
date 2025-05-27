@@ -13,5 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Открываем порт, на котором будет работать FastAPI
 EXPOSE 8000
 
-# Команда для запуска приложения
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Команда для запуска приложения с автоматической перезагрузкой
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
