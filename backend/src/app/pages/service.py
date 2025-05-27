@@ -99,3 +99,72 @@ class PageService:
             ).model_dump()
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    async def set_moderator(self, page_id: int, moderator_id: int, user_id: int) -> PageResponse:
+        try:
+            user_role = await self.role_service.get_user_role(user_id)
+            if user_role != 3:
+                raise HTTPException(status_code=403, detail="У вас нет прав на создание страниц")
+            
+            page = await self.db.execute(select(Page).where(Page.id == page_id))
+            result = page.scalars().first()
+            if not result:
+                raise HTTPException(status_code=404, detail="Страница не найдена")
+            
+            new_moderator = UserPage(
+                page_id=page_id,
+                user_id=moderator_id,
+            )
+            self.db.add(new_moderator)
+            await self.db.commit()
+            await self.db.refresh(new_moderator)
+
+            return await self.get_page_by_id(page_id)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    async def moderator_pages(self, user_id: int) -> PageResponseList:
+        try:
+            pages = await self.db.execute(select(Page).join(UserPage).where(UserPage.user_id == user_id))
+            result = pages.scalars().all()
+            if not result:
+                raise HTTPException(status_code=404, detail="Страницы не найдены")
+            
+            pages_response = []
+            for page in result:
+                moderators = await self.db.execute(
+                    select(User)
+                    .select_from(User)
+                    .join(UserPage, User.id == UserPage.user_id)
+                    .where(UserPage.page_id == page.id)
+                )
+                moderators_list = [
+                    BaseUser(
+                        id=moderator.id, 
+                        first_name=moderator.first_name, 
+                        last_name=moderator.last_name, 
+                        phone=moderator.phone
+                    ).model_dump()
+                    for moderator in moderators.scalars().all()
+                ]
+                
+                tree_data = await self.db.execute(select(Tree).where(Tree.id == page.tree_id))
+                tree = tree_data.scalars().first()
+                
+                pages_response.append(
+                    PageResponse(
+                        id=page.id,
+                        title=page.title,
+                        tree=BaseTree(id=tree.id, name=tree.name).model_dump(),
+                        bread1=page.bread1,
+                        bread2=page.bread2,
+                        bread3=page.bread3,
+                        main_gen=page.main_gen,
+                        main_gen_child=page.main_gen_child,
+                        moderators=moderators_list,
+                    ).model_dump()
+                )
+            
+            return PageResponseList(pages=pages_response)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e)) 
