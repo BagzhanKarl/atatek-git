@@ -61,5 +61,4 @@ jobs:
             export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            sleep 10
             docker compose exec backend alembic upgrade head
