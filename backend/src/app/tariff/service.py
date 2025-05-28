@@ -19,7 +19,7 @@ class TariffService:
             await self.db.flush()
             return True
         else:
-            return False
+            raise HTTPException(status_code=400, detail="Тикет не действует")
     
     async def _change_add_count(self, user_id: int, count: int = None) -> bool:
         try:
@@ -28,12 +28,14 @@ class TariffService:
             result = result.scalars().first()
             if not result:
                 raise HTTPException(status_code=404, detail="Тариф не найден")
-            
-            if count:
-                result.t_add_child -= count
-            else:
-                result.t_add_child -= 1
-            
+            if result.t_add_child > 0:
+                if count:
+                    result.t_add_child -= count
+                else:
+                    result.t_add_child -= 1
+
+            else: 
+                raise HTTPException(status_code=400, detail="Тикет не действует")
             await self.db.flush()
             return True
         except Exception as e:
