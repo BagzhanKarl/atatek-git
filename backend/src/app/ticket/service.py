@@ -14,31 +14,49 @@ class TicketService:
 
     async def _set_edit_data(self, ticket_id: int) -> bool:
         try:
+            print(f"Starting _set_edit_data for ticket {ticket_id}")
             ticket = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
             ticket = ticket.scalars().first()
             if not ticket:
                 raise HTTPException(status_code=404, detail="Тикет не найден")
             
             data = await self.db.execute(select(TicketEditData).where(TicketEditData.ticket_id == ticket_id))
-            result = data.scalars().first()        
-            tree = await self.db.execute(select(Tree).where(Tree.id == ticket.tree_id))
-            tree = tree.scalars().first()
+            result = data.scalars().first()
+            if not result:
+                raise HTTPException(status_code=404, detail="Данные для редактирования не найдены")
             
-            tree.name = result.new_name if result.new_name else tree.name
-            tree.bio = result.new_bio if result.new_bio else tree.bio
-            tree.birth = result.new_birth if result.new_birth else tree.birth
-            tree.death = result.new_death if result.new_death else tree.death
+            print(f"Found edit data: {result.__dict__}")
+            
+            tree = await self.db.execute(select(Tree).where(Tree.id == result.tree_id))
+            tree = tree.scalars().first()
+            if not tree:
+                raise HTTPException(status_code=404, detail="Дерево не найдено")
+            
+            print(f"Current tree data: {tree.__dict__}")
+            
+            if result.new_name:
+                tree.name = result.new_name
+            if result.new_bio:
+                tree.bio = result.new_bio
+            if result.new_birth:
+                tree.birth = result.new_birth
+            if result.new_death:
+                tree.death = result.new_death
 
             await self.db.commit()
             await self.db.refresh(tree)
+            print(f"Updated tree data: {tree.__dict__}")
+            
             await self.tariff_service._change_edit_count(ticket.created_by)
             return True
         except Exception as e:
             await self.db.rollback()
+            print(f"Error in _set_edit_data: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Ошибка при обновлении данных: {str(e)}")
 
     async def _set_add_data(self, ticket_id: int) -> bool:
         try:
+            print(f"Starting _set_add_data for ticket {ticket_id}")
             ticket = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
             ticket = ticket.scalars().first()
             if not ticket:
@@ -46,7 +64,13 @@ class TicketService:
             
             data = await self.db.execute(select(TicketAddData).where(TicketAddData.ticket_id == ticket_id))
             result = data.scalars().all()
+            if not result:
+                raise HTTPException(status_code=404, detail="Данные для добавления не найдены")
+            
+            print(f"Found {len(result)} items to add")
+            
             for item in result:
+                print(f"Adding new tree item: {item.__dict__}")
                 new_data = Tree(
                     name=item.name,
                     parent_id=item.parent_id
@@ -54,10 +78,13 @@ class TicketService:
                 self.db.add(new_data)
             
             await self.db.commit()
+            print("Successfully added all items")
+            
             await self.tariff_service._change_add_count(ticket.created_by, len(result))
             return True
         except Exception as e:
             await self.db.rollback()
+            print(f"Error in _set_add_data: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Ошибка при добавлении данных: {str(e)}")
         
 
@@ -282,11 +309,13 @@ class TicketService:
             if not ticket:
                 raise HTTPException(status_code=404, detail="Тикет не найден")
             
+            print(f"Changing ticket {ticket_id} status from {ticket.status} to {status}")
             ticket.status = status
             await self.db.commit()
             await self.db.refresh(ticket)
             
-            if status == TicketStatus.approved.value:
+            if status == "approved":
+                print(f"Processing approved ticket {ticket_id} of type {ticket.ticket_type}")
                 if ticket.ticket_type == "add_data":
                     await self._set_add_data(ticket_id)
                 elif ticket.ticket_type == "edit_data":
