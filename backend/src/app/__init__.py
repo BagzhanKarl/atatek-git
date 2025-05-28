@@ -6,6 +6,7 @@ from src.app.tree.views import router as tree_router
 from src.app.ticket.views import router as ticket_router
 from src.app.pages.views import router as pages_router
 from src.app.page_news.views import router as page_news_router
+from src.app.page_popular_peoples.views import router as page_popular_peoples_router
 
 
 def init_app(app):
@@ -14,6 +15,7 @@ def init_app(app):
     app.include_router(tree_router, prefix="/tree", tags=["tree"])
     app.include_router(pages_router, prefix="/pages", tags=["pages"])
     app.include_router(page_news_router, prefix="/page_news", tags=["page_news"])
+    app.include_router(page_popular_peoples_router, prefix="/page_popular_peoples", tags=["page_popular_peoples"])
     app.include_router(ticket_router, prefix="/ticket", tags=["ticket"])
     app.include_router(family_router, prefix="/family", tags=["family"])
     app.include_router(db_router, prefix="/db", tags=["db"])
