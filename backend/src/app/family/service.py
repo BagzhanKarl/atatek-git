@@ -34,7 +34,7 @@ class FamilyService:
     async def _remove_partner(self, partner_id: int) -> bool:
         try:
             # Находим всех, у кого этот партнер в списке
-            query = select(Family).where(Family.partners_id.contains([partner_id]))
+            query = select(Family).where(Family.partners_id.any(partner_id))
             partners = await self.db.execute(query)
             partners = partners.scalars().all()
 
