@@ -82,11 +82,11 @@ class TicketService:
                     parent_id=item.parent_id
                 )
                 self.db.add(new_data)
-            
-            await self.db.commit()
-            print("Successfully added all items")
+                await self.db.flush()
             
             await self.tariff_service._change_add_count(ticket.created_by, len(result))
+            print("Successfully added all items")
+            
             return True
         except Exception as e:
             await self.db.rollback()
