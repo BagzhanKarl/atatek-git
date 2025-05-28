@@ -1,6 +1,7 @@
 from src.app.tariff.models import *
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
+from sqlalchemy import select
 
 class TariffService:
     def __init__(self, db: AsyncSession):
