@@ -61,17 +61,20 @@ class FamilyService:
             # Проверка существования связанных узлов
             if father_id:
                 father = await self.db.execute(select(Family).where(Family.id == father_id))
-                if not father.scalars().first():
+                father = father.scalars().first()
+                if not father:
                     raise HTTPException(status_code=404, detail="Отец не найден")
             
             if mother_id:
                 mother = await self.db.execute(select(Family).where(Family.id == mother_id))
-                if not mother.scalars().first():
+                mother = mother.scalars().first()
+                if not mother:
                     raise HTTPException(status_code=404, detail="Мать не найдена")
             
             if partner_id:
                 partner = await self.db.execute(select(Family).where(Family.id == partner_id))
-                if not partner.scalars().first():
+                partner = partner.scalars().first()
+                if not partner:
                     raise HTTPException(status_code=404, detail="Партнер не найден")
 
             new_node = Family(
@@ -84,7 +87,7 @@ class FamilyService:
                 sex=node.sex,
                 img='https://cdn.atatek.kz/family/default.png',
             )
-            await self.db.add(new_node)
+            self.db.add(new_node)
             await self.db.flush()
 
             # Валидация пола при установке связей
