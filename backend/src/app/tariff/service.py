@@ -31,7 +31,7 @@ class TariffService:
                 raise HTTPException(status_code=404, detail="Тариф не найден")
             
             if count:
-                result.t_add_child += count
+                result.t_add_child -= count
             else:
                 result.t_add_child -= 1
             
