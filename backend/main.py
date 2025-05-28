@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from src.app.config.response import http_exception_handler
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
-
+from fastapi.middleware.cors import CORSMiddleware
 from src.app import init_app
 
 app = FastAPI(
@@ -10,6 +10,14 @@ app = FastAPI(
     version="3.0.0",
     description="Жаңа нұсқа жаңа фреймворкта FastAPI",
 )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешаем фронтенду на Next.js делать запросы
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Обработка HTTP ошибок
 app.add_exception_handler(HTTPException, http_exception_handler)
 
