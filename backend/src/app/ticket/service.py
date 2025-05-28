@@ -1,18 +1,72 @@
 from src.app.ticket.models import *
 from src.app.ticket.schemas import *
+from src.app.role.service import RoleService
+from src.app.tariff.service import TariffService
+from src.app.tree.models import Tree
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 class TicketService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self.role_service = RoleService(db)
+        self.tariff_service = TariffService(db) 
 
-    async def create_ticket(self, data: TicketCreate):
+    async def _set_edit_data(self, ticket_id: int) -> bool:
+        try:
+            ticket = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
+            ticket = ticket.scalars().first()
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Тикет не найден")
+            
+            data = await self.db.execute(select(TicketEditData).where(TicketEditData.ticket_id == ticket_id))
+            result = data.scalars().first()        
+            tree = await self.db.execute(select(Tree).where(Tree.id == ticket.tree_id))
+            tree = tree.scalars().first()
+            
+            tree.name = result.new_name if result.new_name else tree.name
+            tree.bio = result.new_bio if result.new_bio else tree.bio
+            tree.birth = result.new_birth if result.new_birth else tree.birth
+            tree.death = result.new_death if result.new_death else tree.death
+
+            await self.db.commit()
+            await self.db.refresh(tree)
+            await self.tariff_service._change_edit_count(ticket.created_by)
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise HTTPException(status_code=500, detail=f"Ошибка при обновлении данных: {str(e)}")
+
+    async def _set_add_data(self, ticket_id: int) -> bool:
+        try:
+            ticket = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
+            ticket = ticket.scalars().first()
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Тикет не найден")
+            
+            data = await self.db.execute(select(TicketAddData).where(TicketAddData.ticket_id == ticket_id))
+            result = data.scalars().all()
+            for item in result:
+                new_data = Tree(
+                    name=item.name,
+                    parent_id=item.parent_id
+                )
+                self.db.add(new_data)
+            
+            await self.db.commit()
+            await self.tariff_service._change_add_count(ticket.created_by, len(result))
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise HTTPException(status_code=500, detail=f"Ошибка при добавлении данных: {str(e)}")
+        
+
+    async def create_ticket(self, data: TicketCreate, user_id: int):
         # Создаем основной тикет
         ticket = Ticket(
             ticket_type=data.ticket_type,
             status=data.status,
-            created_by=data.created_by,
+            created_by=user_id,
             answered_by=data.answered_by
         )
         self.db.add(ticket)
@@ -195,3 +249,59 @@ class TicketService:
                 edit_data=edit_data_dict
             ).model_dump()
         
+    async def get_tickets(self, user_id: int) -> TicketListResponse:
+        user_role = await self.role_service.get_user_role(user_id)
+        if user_role != 3:
+            raise HTTPException(status_code=403, detail="У вас нет прав на просмотр тикетов")
+        
+        query = select(Ticket).order_by(Ticket.created_at.desc())
+        result = await self.db.execute(query)
+        tickets = result.scalars().all()
+
+        return TicketListResponse(
+            tickets=[
+                TicketResponse(
+                    id=ticket.id,
+                    ticket_type=ticket.ticket_type.value,
+                    status=ticket.status.value,
+                    created_by=ticket.created_by,
+                    answered_by=ticket.answered_by
+                )
+                for ticket in tickets
+                ]
+            ).model_dump()
+    
+    async def change_ticket_status(self, user_id: int, ticket_id: int, status: str) -> TicketResponse:
+        try:
+            user_role = await self.role_service.get_user_role(user_id)
+            if user_role != 3:
+                raise HTTPException(status_code=403, detail="У вас нет прав на изменение статуса тикетов")
+            
+            ticket = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
+            ticket = ticket.scalars().first()
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Тикет не найден")
+            
+            ticket.status = status
+            await self.db.commit()
+            await self.db.refresh(ticket)
+            
+            if status == TicketStatus.approved.value:
+                if ticket.ticket_type == "add_data":
+                    await self._set_add_data(ticket_id)
+                elif ticket.ticket_type == "edit_data":
+                    await self._set_edit_data(ticket_id)    
+            
+            return TicketResponse(
+                id=ticket.id,
+                ticket_type=ticket.ticket_type.value,
+                status=ticket.status.value,
+                created_by=ticket.created_by,
+                answered_by=ticket.answered_by
+            ).model_dump()
+        except Exception as e:
+            await self.db.rollback()
+            raise HTTPException(status_code=500, detail=f"Ошибка при изменении статуса тикета: {str(e)}")
+
+        
+

@@ -69,3 +69,6 @@ class TicketResponse(TicketBase):
 
     class Config:
         from_attributes = True
+
+class TicketListResponse(BaseModel):
+    tickets: List[TicketResponse]
