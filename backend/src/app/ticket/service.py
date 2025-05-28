@@ -74,6 +74,11 @@ class TicketService:
                 print(f"Adding new tree item: {item.__dict__}")
                 new_data = Tree(
                     name=item.name,
+                    birth=None,
+                    death=None,
+                    bio=None,
+                    is_deleted=False,
+                    t_id=0,
                     parent_id=item.parent_id
                 )
                 self.db.add(new_data)
