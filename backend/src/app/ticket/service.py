@@ -318,8 +318,7 @@ class TicketService:
             
             print(f"Changing ticket {ticket_id} status from {ticket.status} to {status}")
             ticket.status = status
-            await self.db.commit()
-            await self.db.refresh(ticket)
+            await self.db.flush()
             
             if status == "approved":
                 print(f"Processing approved ticket {ticket_id} of type {type}")
@@ -329,6 +328,9 @@ class TicketService:
                 elif type == "edit_data" or ticket.ticket_type.value == "edit_data":
                     result = await self._set_edit_data(ticket_id)
                     print(f"Edit data result: {result}")
+            
+            await self.db.commit()
+            await self.db.refresh(ticket)
             
             return TicketResponse(
                 id=ticket.id,
