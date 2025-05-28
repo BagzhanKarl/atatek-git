@@ -317,9 +317,11 @@ class TicketService:
             if status == "approved":
                 print(f"Processing approved ticket {ticket_id} of type {ticket.ticket_type}")
                 if ticket.ticket_type == "add_data":
-                    await self._set_add_data(ticket_id)
+                    result = await self._set_add_data(ticket_id)
+                    print(f"Add data result: {result}")
                 elif ticket.ticket_type == "edit_data":
-                    await self._set_edit_data(ticket_id)    
+                    result = await self._set_edit_data(ticket_id)
+                    print(f"Edit data result: {result}")
             
             return TicketResponse(
                 id=ticket.id,
