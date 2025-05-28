@@ -7,7 +7,7 @@ from src.app.config.response import *
 from src.app.db.core import get_db
 from src.app.ticket.service import TicketService
 from src.app.ticket.schemas import *
-from src.app.auth import auth
+from src.app.config.auth import auth
 
 router = APIRouter()
 
