@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from src.app.db.core import get_db
 from src.app.config.auth import auth
@@ -12,9 +11,22 @@ from src.app.family.service import FamilyService
 router = APIRouter(prefix="/api/family", tags=["family"])
 
 
-@router.get('/tree', response_model=StandardResponse[FamilyTree])
+@router.post('/create', response_model=StandardResponse[FamilyResponse])
 @autowrap
-async def get_family_tree(user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+async def create_family_node(
+    node: FamilyCreate,
+    user_data = Depends(auth.get_user_data_dependency()),
+    db: AsyncSession = Depends(get_db),
+    father_id: int = None,
+    mother_id: int = None,
+    partner_id: int = None,
+):
     service = FamilyService(db)
-    return await service.get_family_tree(int(user_data["sub"]))
+    return await service.create_node(
+        int(user_data["sub"]),
+        node,
+        father_id,
+        mother_id,
+        partner_id,
+    )
 

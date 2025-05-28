@@ -9,10 +9,7 @@ class FamilyCreate(BaseModel):
     death_date: Optional[str] = Field(None, description="Дата смерти")
     bio: Optional[str] = Field(None, description="Биография")
     sex: str = Field(..., description="Пол")
-    father_id: Optional[int] = Field(None, description="ID отца")
-    mother_id: Optional[int] = Field(None, description="ID матери")
-    partners_id: Optional[list[int]] = Field(None, description="ID партнеров")
-    children_id: Optional[list[int]] = Field(None, description="ID детей")
+
  
 class FamilyResponse(BaseModel):
     id: int = Field(..., example=1)
