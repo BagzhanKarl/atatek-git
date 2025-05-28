@@ -17,7 +17,15 @@ class PageNewsService:
         self.db.add(news)
         await self.db.commit()
         await self.db.refresh(news)
-        return PageNewsResponse.model_validate(news)
+        return PageNewsResponse(
+            id=news.id,
+            page_id=news.page_id,
+            title=news.title,
+            poster=news.poster,
+            content=news.content,
+            created_at=news.created_at,
+            updated_at=news.updated_at
+        ).model_dump()
 
     async def get_news_by_id(self, news_id: int) -> PageNewsResponse:
         query = select(PageNews).where(PageNews.id == news_id)
@@ -25,13 +33,31 @@ class PageNewsService:
         news = result.scalar_one_or_none()
         if not news:
             raise Exception("News not found")
-        return PageNewsResponse.model_validate(news)
+        return PageNewsResponse(
+            id=news.id,
+            page_id=news.page_id,
+            title=news.title,
+            poster=news.poster,
+            content=news.content,
+            created_at=news.created_at,
+            updated_at=news.updated_at
+        ).model_dump()
 
     async def get_news_by_page_id(self, page_id: int) -> list[PageNewsResponse]:
         query = select(PageNews).where(PageNews.page_id == page_id)
         result = await self.db.execute(query)
         news_list = result.scalars().all()
-        return [PageNewsResponse.model_validate(news) for news in news_list]
+        return [
+            PageNewsResponse(
+                id=news.id,
+                page_id=news.page_id,
+                title=news.title,
+                poster=news.poster,
+                content=news.content,
+                created_at=news.created_at,
+                updated_at=news.updated_at
+            ).model_dump() for news in news_list
+        ]
 
     async def update_news(self, news_id: int, news_data: CreatePageNews) -> PageNewsResponse:
         query = update(PageNews).where(PageNews.id == news_id).values(
@@ -58,13 +84,29 @@ class PageNewsService:
         self.db.add(comment)
         await self.db.commit()
         await self.db.refresh(comment)
-        return PageNewsCommentResponse.model_validate(comment)
+        return PageNewsCommentResponse(
+            id=comment.id,
+            page_news_id=comment.page_news_id,
+            user_id=comment.user_id,
+            comment=comment.comment,
+            created_at=comment.created_at,
+            updated_at=comment.updated_at
+        ).model_dump()
 
     async def get_comments_by_news_id(self, news_id: int) -> list[PageNewsCommentResponse]:
         query = select(PageNewsCommets).where(PageNewsCommets.page_news_id == news_id)
         result = await self.db.execute(query)
         comments = result.scalars().all()
-        return [PageNewsCommentResponse.model_validate(comment) for comment in comments]
+        return [
+            PageNewsCommentResponse(
+                id=comment.id,
+                page_news_id=comment.page_news_id,
+                user_id=comment.user_id,
+                comment=comment.comment,
+                created_at=comment.created_at,
+                updated_at=comment.updated_at
+            ).model_dump() for comment in comments
+        ]
 
     async def delete_comment(self, comment_id: int) -> bool:
         query = delete(PageNewsCommets).where(PageNewsCommets.id == comment_id)
