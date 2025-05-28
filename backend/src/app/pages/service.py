@@ -183,3 +183,25 @@ class PageService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e)) 
     
+    async def delete_moderator(self, page_id: int, moderator_id: int, user_id: int) -> PageResponse:
+        try:
+            user_role = await self.role_service.get_user_role(user_id)
+            if user_role != 3:
+                raise HTTPException(status_code=403, detail="У вас нет прав на удаление модераторов")
+            
+            page = await self.db.execute(select(Page).where(Page.id == page_id))
+            result = page.scalars().first()
+            if not result:
+                raise HTTPException(status_code=404, detail="Страница не найдена")
+            
+            moderator = await self.db.execute(select(PageModerator).where(PageModerator.page_id == page_id, PageModerator.user_id == moderator_id))
+            moderator = moderator.scalars().first()
+            if not moderator:
+                raise HTTPException(status_code=404, detail="Модератор не найден")
+            
+            await self.db.delete(moderator)
+            await self.db.commit()
+
+            return await self.get_page_by_id(page_id)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
