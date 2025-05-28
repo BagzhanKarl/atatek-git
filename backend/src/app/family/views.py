@@ -40,6 +40,18 @@ async def get_family_tree(
     service = FamilyService(db)
     return await service.get_family_tree(user_id)
 
+@router.put('/tree/node/{node_id}', response_model=StandardResponse[FamilyResponse])
+@autowrap
+async def update_family_node(
+    node_id: int,
+    node: UpdateNode,
+    user_data = Depends(auth.get_user_data_dependency()),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(user_data["sub"])
+    service = FamilyService(db)
+    return await service.update_node(node_id, node)
+
 @router.delete('/tree/node/{node_id}', response_model=StandardResponse[dict])
 @autowrap
 async def delete_family_node(

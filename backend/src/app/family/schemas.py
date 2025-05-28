@@ -33,3 +33,11 @@ class FamilyTree(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UpdateNode(BaseModel):
+    full_name: Optional[str] = Field(None, example="Иван Иванов")
+    date_of_birth: Optional[str] = Field(None, example="1990-01-01")
+    is_alive: Optional[bool] = Field(None, example=True)
+    death_date: Optional[str] = Field(None, example=None)
+    bio: Optional[str] = Field(None, example=None)
+

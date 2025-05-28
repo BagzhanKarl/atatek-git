@@ -187,3 +187,39 @@ class FamilyService:
                 raise HTTPException(status_code=400, detail="Ошибка при удалении партнера")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Ошибка при удалении пользователя: {str(e)}")
+
+    async def update_node(self, node_id: int, node: UpdateNode) -> FamilyResponse:
+        try:
+            node_base = await self.db.execute(select(Family).where(Family.id == node_id))
+            node_base = node_base.scalars().first()
+            if not node_base:
+                raise HTTPException(status_code=404, detail="Узел не найден")
+            
+            if node.full_name:
+                node.full_name = node_base.full_name
+            if node.date_of_birth:
+                node.date_of_birth = node_base.date_of_birth
+            if node.is_alive:
+                node.is_alive = node_base.is_alive
+            if node.death_date:
+                node.death_date = node_base.death_date
+            if node.bio:
+                node.bio = node_base.bio
+
+            await self.db.commit()
+            await self.db.refresh(node)
+            return FamilyResponse(
+                id=node.id,
+                full_name=node.full_name,
+                date_of_birth=node.date_of_birth,
+                is_alive=node.is_alive,
+                death_date=node.death_date,
+                bio=node.bio,
+                sex=node.sex,
+                fid=node.father_id,
+                mid=node.mother_id,
+                pids=node.partners_id,
+                user_id=node.user_id,
+            ).model_dump()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка при обновлении узла: {str(e)}")
