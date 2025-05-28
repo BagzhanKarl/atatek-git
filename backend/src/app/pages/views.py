@@ -39,10 +39,10 @@ async def moderator_pages(moderator_id: int, user_data = Depends(auth.get_user_d
     service = PageService(db)
     return await service.moderator_pages(moderator_id)
 
-@router.delete("/moderator/{moderator_id}", response_model=StandardResponse[PageResponse])
+@router.delete("/{page_id}/moderator/{moderator_id}", response_model=StandardResponse[PageResponse])
 @autowrap
-async def delete_moderator(moderator_id: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+async def delete_moderator(page_id: int, moderator_id: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
     user_id = int(user_data["sub"])
     service = PageService(db)
-    return await service.delete_moderator(moderator_id, user_id)
+    return await service.delete_moderator(page_id, moderator_id, user_id)
 
