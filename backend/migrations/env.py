@@ -24,6 +24,8 @@ from src.app.tariff.models import *
 from src.app.tree.models import *
 from src.app.family.models import *
 from src.app.ticket.models import *
+from src.app.page_news.models import *
+from src.app.page_popular_peoples.models import *
 
 target_metadata = Base.metadata
 
