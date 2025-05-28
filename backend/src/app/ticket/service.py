@@ -44,14 +44,11 @@ class TicketService:
             if result.new_death:
                 tree.death = result.new_death
 
-            await self.db.commit()
-            await self.db.refresh(tree)
-            print(f"Updated tree data: {tree.__dict__}")
             
             await self.tariff_service._change_edit_count(ticket.created_by)
+            await self.db.flush()
             return True
         except Exception as e:
-            await self.db.rollback()
             print(f"Error in _set_edit_data: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Ошибка при обновлении данных: {str(e)}")
 

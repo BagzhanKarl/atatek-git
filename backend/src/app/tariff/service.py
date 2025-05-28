@@ -16,8 +16,7 @@ class TariffService:
         
         if result.t_edit_child > 0:
             result.t_edit_child -= 1
-            await self.db.commit()
-            await self.db.refresh(result)
+            await self.db.flush()
             return True
         else:
             return False
