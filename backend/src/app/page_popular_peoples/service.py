@@ -2,6 +2,7 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.app.page_popular_peoples.models import PagePopularPeoples
 from src.app.page_popular_peoples.schemas import CreatePagePopularPeople, PagePopularPeopleResponse
+from datetime import datetime
 
 class PagePopularPeoplesService:
     def __init__(self, db: AsyncSession):
@@ -11,8 +12,8 @@ class PagePopularPeoplesService:
         person = PagePopularPeoples(
             page_id=person_data.page_id,
             full_name=person_data.full_name,
-            date_of_birth=person_data.date_of_birth,
-            death_date=person_data.death_date,
+            date_of_birth=datetime.fromisoformat(person_data.date_of_birth),
+            death_date=datetime.fromisoformat(person_data.death_date) if person_data.death_date else None,
             bio=person_data.bio,
             image=person_data.image
         )
@@ -23,8 +24,8 @@ class PagePopularPeoplesService:
             id=person.id,
             page_id=person.page_id,
             full_name=person.full_name,
-            date_of_birth=person.date_of_birth,
-            death_date=person.death_date,
+            date_of_birth=person.date_of_birth.isoformat(),
+            death_date=person.death_date.isoformat() if person.death_date else None,
             bio=person.bio,
             image=person.image
         ).model_dump()
@@ -39,8 +40,8 @@ class PagePopularPeoplesService:
             id=person.id,
             page_id=person.page_id,
             full_name=person.full_name,
-            date_of_birth=person.date_of_birth,
-            death_date=person.death_date,
+            date_of_birth=person.date_of_birth.isoformat(),
+            death_date=person.death_date.isoformat() if person.death_date else None,
             bio=person.bio,
             image=person.image
         ).model_dump()
@@ -54,8 +55,8 @@ class PagePopularPeoplesService:
                 id=person.id,
                 page_id=person.page_id,
                 full_name=person.full_name,
-                date_of_birth=person.date_of_birth,
-                death_date=person.death_date,
+                date_of_birth=person.date_of_birth.isoformat(),
+                death_date=person.death_date.isoformat() if person.death_date else None,
                 bio=person.bio,
                 image=person.image
             ).model_dump() for person in peoples
@@ -64,8 +65,8 @@ class PagePopularPeoplesService:
     async def update_popular_person(self, person_id: int, person_data: CreatePagePopularPeople) -> PagePopularPeopleResponse:
         query = update(PagePopularPeoples).where(PagePopularPeoples.id == person_id).values(
             full_name=person_data.full_name,
-            date_of_birth=person_data.date_of_birth,
-            death_date=person_data.death_date,
+            date_of_birth=datetime.fromisoformat(person_data.date_of_birth),
+            death_date=datetime.fromisoformat(person_data.death_date) if person_data.death_date else None,
             bio=person_data.bio,
             image=person_data.image
         )
