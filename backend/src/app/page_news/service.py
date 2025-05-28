@@ -22,9 +22,7 @@ class PageNewsService:
             page_id=news.page_id,
             title=news.title,
             poster=news.poster,
-            content=news.content,
-            created_at=news.created_at,
-            updated_at=news.updated_at
+            content=news.content
         ).model_dump()
 
     async def get_news_by_id(self, news_id: int) -> PageNewsResponse:
@@ -38,9 +36,7 @@ class PageNewsService:
             page_id=news.page_id,
             title=news.title,
             poster=news.poster,
-            content=news.content,
-            created_at=news.created_at,
-            updated_at=news.updated_at
+            content=news.content
         ).model_dump()
 
     async def get_news_by_page_id(self, page_id: int) -> list[PageNewsResponse]:
@@ -53,9 +49,7 @@ class PageNewsService:
                 page_id=news.page_id,
                 title=news.title,
                 poster=news.poster,
-                content=news.content,
-                created_at=news.created_at,
-                updated_at=news.updated_at
+                content=news.content
             ).model_dump() for news in news_list
         ]
 
@@ -88,9 +82,7 @@ class PageNewsService:
             id=comment.id,
             page_news_id=comment.page_news_id,
             user_id=comment.user_id,
-            comment=comment.comment,
-            created_at=comment.created_at,
-            updated_at=comment.updated_at
+            comment=comment.comment
         ).model_dump()
 
     async def get_comments_by_news_id(self, news_id: int) -> list[PageNewsCommentResponse]:
@@ -102,9 +94,7 @@ class PageNewsService:
                 id=comment.id,
                 page_news_id=comment.page_news_id,
                 user_id=comment.user_id,
-                comment=comment.comment,
-                created_at=comment.created_at,
-                updated_at=comment.updated_at
+                comment=comment.comment
             ).model_dump() for comment in comments
         ]
 

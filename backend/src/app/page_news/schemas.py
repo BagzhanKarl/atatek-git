@@ -14,8 +14,6 @@ class PageNewsResponse(BaseModel):
     title: str = Field(..., example="Новость")
     poster: str = Field(..., example="https://example.com/poster.jpg")
     content: str = Field(..., example="Содержание новости")
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -29,8 +27,6 @@ class PageNewsCommentResponse(BaseModel):
     page_news_id: int = Field(..., example=1)
     user_id: int = Field(..., example=1)
     comment: str = Field(..., example="Комментарий к новости")
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True 
