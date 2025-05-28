@@ -306,6 +306,7 @@ class TicketService:
             
             ticket = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
             ticket = ticket.scalars().first()
+            type = ticket.ticket_type
             if not ticket:
                 raise HTTPException(status_code=404, detail="Тикет не найден")
             
@@ -315,11 +316,11 @@ class TicketService:
             await self.db.refresh(ticket)
             
             if status == "approved":
-                print(f"Processing approved ticket {ticket_id} of type {ticket.ticket_type}")
-                if ticket.ticket_type == "add_data":
+                print(f"Processing approved ticket {ticket_id} of type {type}")
+                if type == "add_data" or ticket.type.value == "add_data":
                     result = await self._set_add_data(ticket_id)
                     print(f"Add data result: {result}")
-                elif ticket.ticket_type == "edit_data":
+                elif type == "edit_data" or ticket.type.value == "edit_data":
                     result = await self._set_edit_data(ticket_id)
                     print(f"Edit data result: {result}")
             
