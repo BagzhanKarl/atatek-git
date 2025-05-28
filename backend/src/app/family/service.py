@@ -121,3 +121,29 @@ class FamilyService:
             raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Ошибка при создании узла: {str(e)}")
+
+    async def get_family_tree(self, user_id: int) -> FamilyTree:
+        try:
+            # Получение всех узлов семьи для данного пользователя
+            query = select(Family).where(Family.user_id == user_id).order_by(Family.id)
+            nodes = await self.db.execute(query)
+            nodes = nodes.scalars().all()
+            return FamilyTree(
+                nodes=[
+                    FamilyResponse(
+                        id=node.id,
+                        full_name=node.full_name,
+                        date_of_birth=node.date_of_birth,
+                        is_alive=node.is_alive,
+                        death_date=node.death_date,
+                        bio=node.bio,
+                        sex=node.sex,
+                        fid=node.father_id,
+                        mid=node.mother_id,
+                        pids=node.partners_id,
+                        user_id=node.user_id,
+                    ).model_dump() 
+                    for node in nodes]
+            ).model_dump()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка при получении дерева семьи: {str(e)}")

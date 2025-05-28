@@ -30,3 +30,12 @@ async def create_family_node(
         partner_id,
     )
 
+@router.get('/tree', response_model=StandardResponse[FamilyTree])
+@autowrap
+async def get_family_tree(
+    user_data = Depends(auth.get_user_data_dependency()),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(user_data["sub"])
+    service = FamilyService(db)
+    return await service.get_family_tree(user_id)
