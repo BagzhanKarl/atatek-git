@@ -5,6 +5,7 @@ from src.app.tariff.service import TariffService
 from src.app.tree.models import Tree
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from fastapi import HTTPException
 
 class TicketService:
     def __init__(self, db: AsyncSession):
@@ -317,10 +318,10 @@ class TicketService:
             
             if status == "approved":
                 print(f"Processing approved ticket {ticket_id} of type {type}")
-                if type == "add_data" or ticket.type.value == "add_data":
+                if type == "add_data" or ticket.ticket_type.value == "add_data":
                     result = await self._set_add_data(ticket_id)
                     print(f"Add data result: {result}")
-                elif type == "edit_data" or ticket.type.value == "edit_data":
+                elif type == "edit_data" or ticket.ticket_type.value == "edit_data":
                     result = await self._set_edit_data(ticket_id)
                     print(f"Edit data result: {result}")
             
