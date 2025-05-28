@@ -102,7 +102,8 @@ class FamilyService:
                 await self._set_mother(new_node.id, mother_id)
             if partner_id:
                 await self._set_partners(new_node.id, partner_id)
-
+            await self.db.commit()
+            await self.db.refresh(new_node)
             return FamilyResponse(
                 id=new_node.id,
                 full_name=new_node.full_name,
