@@ -31,6 +31,28 @@ class FamilyService:
             return True
         return False
 
+    async def _remove_partner(self, partner_id: int) -> bool:
+        try:
+            # Находим всех, у кого этот партнер в списке
+            query = select(Family).where(Family.partners_id.contains([partner_id]))
+            partners = await self.db.execute(query)
+            partners = partners.scalars().all()
+
+            if not partners:
+                return True  # Если ни у кого нет этого партнера, считаем что всё ок
+
+            # Удаляем ID партнера из списков всех его партнеров
+            for partner in partners:
+                if partner.partners_id is not None:
+                    partner.partners_id = [pid for pid in partner.partners_id if pid != partner_id]
+
+            await self.db.flush()
+            await self.db.commit()
+            
+            return True
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка при удалении партнера из списков: {str(e)}")
+
     async def _set_father(self, node_id: int, father_id: int) -> bool:
         node = await self.db.execute(select(Family).where(Family.id == node_id))
         node = node.scalars().first()
@@ -39,7 +61,7 @@ class FamilyService:
             await self.db.flush()
             return True
         return False
-
+    
     async def _set_mother(self, node_id: int, mother_id: int) -> bool:
         node = await self.db.execute(select(Family).where(Family.id == node_id))
         node = node.scalars().first()
@@ -125,7 +147,7 @@ class FamilyService:
     async def get_family_tree(self, user_id: int) -> FamilyTree:
         try:
             # Получение всех узлов семьи для данного пользователя
-            query = select(Family).where(Family.user_id == user_id).order_by(Family.id)
+            query = select(Family).where(Family.user_id == user_id, Family.is_deleted == False).order_by(Family.id)
             nodes = await self.db.execute(query)
             nodes = nodes.scalars().all()
             return FamilyTree(
@@ -147,3 +169,21 @@ class FamilyService:
             ).model_dump()
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Ошибка при получении дерева семьи: {str(e)}")
+
+    async def delete_user(self, user_id: int, node_id: int) -> dict:
+        try:
+            node = await self.db.execute(select(Family).where(Family.id == node_id))
+            node = node.scalars().first()
+            if not node:
+                raise HTTPException(status_code=404, detail="Узел не найден")
+            
+            node.is_deleted = True
+
+            remove_partner = await self._remove_partner(node_id)
+            if remove_partner:
+                await self.db.commit()
+                return {"message": "Партнер успешно удален"}
+            else:
+                raise HTTPException(status_code=400, detail="Ошибка при удалении партнера")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка при удалении пользователя: {str(e)}")

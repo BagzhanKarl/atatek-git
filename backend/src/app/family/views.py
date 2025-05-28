@@ -39,3 +39,13 @@ async def get_family_tree(
     user_id = int(user_data["sub"])
     service = FamilyService(db)
     return await service.get_family_tree(user_id)
+
+@router.delete('/tree/node/{node_id}', response_model=StandardResponse[dict])
+@autowrap
+async def delete_family_node(
+    node_id: int,
+    user_data = Depends(auth.get_user_data_dependency()),
+    db: AsyncSession = Depends(get_db),
+):
+    service = FamilyService(db)
+    return await service.delete_user(int(user_data["sub"]), node_id)
