@@ -205,3 +205,36 @@ class PageService:
             return await self.get_page_by_id(page_id)
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    async def get_pages_from_main_juz(self, main_juz_id: int, user_id: int) -> PageResponseList:
+        try: 
+            page = await self.db.execute(select(Page).where(Page.main_gen_child == main_juz_id))
+            result = page.scalars().all()
+
+            if not result:
+                raise HTTPException(status_code=404, detail="Ничего не найдено")
+            
+            pages_response = []
+            for page in result:
+                tree_data = await self.db.execute(select(Tree).where(Tree.id == page.tree_id))
+                tree = tree_data.scalars().first()
+                if not tree:
+                    raise HTTPException(status_code=400, detail="Запись с таким ID не найдена")
+                
+                pages_response.append(
+                    PageResponse(
+                        id=page.id,
+                        title=page.title,
+                        tree=BaseTree(id=tree.id, name=tree.name).model_dump(),
+                        bread1=page.bread1,
+                        bread2=page.bread2,
+                        bread3=page.bread3,
+                        main_gen=page.main_gen,
+                        main_gen_child=page.main_gen_child,
+                        moderators=None,
+                    ).model_dump()
+                )
+            
+            return PageResponseList(pages=pages_response).model_dump()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))

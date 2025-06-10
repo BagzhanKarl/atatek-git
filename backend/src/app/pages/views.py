@@ -25,6 +25,12 @@ async def get_page_by_id(page_id: int, user_data = Depends(auth.get_user_data_de
     service = PageService(db)
     return await service.get_page_by_id(page_id)
 
+@router.get("/page/{main_gen_juz}", response_model=StandardResponse[PageResponseList])
+@autowrap
+async def get_juz_data(main_gen_juz: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+    service = PageService(db)
+    return await service.get_pages_from_main_juz(main_gen_juz)
+
 @router.post("/{page_id}/moderator", response_model=StandardResponse[PageResponse])
 @autowrap
 async def set_moderator(page_id: int, moderator_id: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
@@ -45,4 +51,5 @@ async def delete_moderator(page_id: int, moderator_id: int, user_data = Depends(
     user_id = int(user_data["sub"])
     service = PageService(db)
     return await service.delete_moderator(page_id, moderator_id, user_id)
+
 
