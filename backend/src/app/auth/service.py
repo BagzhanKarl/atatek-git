@@ -69,12 +69,19 @@ class UsersService:
 
             # Получаем тариф пользователя с JOIN
             tariff_query = (
-                select(Tariff)
+                select(
+                    Tariff.id,
+                    Tariff.name,
+                    Tariff.price,
+                    UserTariff.t_add_child,
+                    UserTariff.t_edit_child,
+                    UserTariff.t_family_count
+                )
                 .join(UserTariff, Tariff.id == UserTariff.tariff_id)
                 .where(UserTariff.user_id == user_id)
             )
             tariff_result = await self.db.execute(tariff_query)
-            tariff_data = tariff_result.scalars().first()
+            tariff_data = tariff_result.first()
             
             if not tariff_data:
                 raise HTTPException(
@@ -203,7 +210,8 @@ class UsersService:
                     price=tariff.price, 
                     t_add_child=tariff.t_add_child, 
                     t_edit_child=tariff.t_edit_child, 
-                    t_family_count=tariff.t_family_count).model_dump(),
+                    t_family_count=tariff.t_family_count
+                ).model_dump(),
             ).model_dump()
         except HTTPException:
             raise
