@@ -46,3 +46,14 @@ class ProfileUser(BaseModel):
     all_added_nodes: int = Field(..., example=10)
     all_edited_nodes: int = Field(..., example=10)
     all_family_nodes: int = Field(..., example=10)
+
+class UpdateUser(BaseModel):
+    first_name: Optional[str] = Field(None, example="John")
+    last_name: Optional[str] = Field(None, example="Doe")
+    middle_name: Optional[str] = Field(None, example="John")
+
+class ResetPassword(BaseModel):
+    password: str = Field(..., example="password")
+    new_password: str = Field(..., example="new_password")
+    confirm_password: str = Field(..., example="confirm_password")
+    

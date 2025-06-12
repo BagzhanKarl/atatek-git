@@ -328,3 +328,47 @@ class UsersService:
             ).model_dump()
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    async def update_user(self, user_id: int, user_data: UpdateUser):
+        try:
+            user = await self.db.execute(select(User).where(User.id == user_id))
+            user = user.scalars().first()
+            
+            if user_data.first_name:
+                user.first_name = user_data.first_name
+            if user_data.last_name:
+                user.last_name = user_data.last_name
+            if user_data.middle_name:
+                user.middle_name = user_data.middle_name
+            
+            await self.db.commit()
+            await self.db.refresh(user)
+
+            return {
+                "message": "Данные пользователя успешно обновлены"
+            }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    async def reset_password(self, user_id: int, user_data: ResetPassword):
+        try:
+            user = await self.db.execute(select(User).where(User.id == user_id))
+            user = user.scalars().first()
+            
+            if not verify_password(user_data.password, user.password):
+                raise HTTPException(status_code=400, detail="Неверный пароль")
+            
+            if user_data.new_password != user_data.confirm_password:
+                raise HTTPException(status_code=400, detail="Пароли не совпадают")
+            
+
+            user.password = hash_password(user_data.new_password)
+            await self.db.commit()
+            await self.db.refresh(user)
+
+            return {
+                "message": "Пароль успешно сброшен"
+            }
+            
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
