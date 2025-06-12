@@ -324,4 +324,6 @@ class UsersService:
                 all_added_nodes=len(tree_added),
                 all_edited_nodes=len(tree_edited),
                 all_family_nodes=len(tree_family),
-            )
+            ).model_dump()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
