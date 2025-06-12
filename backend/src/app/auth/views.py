@@ -66,14 +66,14 @@ async def get_profile(user_data = Depends(auth.get_user_data_dependency()), db: 
 
 @router.put("/update-user", response_model=StandardResponse[dict])
 @autowrap
-async def update_user(user_data: UpdateUser, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+async def update_user(user_pass: UpdateUser, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
     service = UsersService(db)
-    user = await service.update_user(int(user_data["sub"]), user_data)
+    user = await service.update_user(int(user_data["sub"]), user_pass)
     return user
 
 @router.put("/reset-password", response_model=StandardResponse[dict])
 @autowrap   
-async def reset_password(user_data: ResetPassword, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+async def reset_password(user_pass: ResetPassword, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
     service = UsersService(db)
-    user = await service.reset_password(int(user_data["sub"]), user_data)
+    user = await service.reset_password(int(user_data["sub"]), user_pass)
     return user
