@@ -320,7 +320,7 @@ class UsersService:
                 last_name=user.last_name,
                 middle_name=user.middle_name,
                 phone=user.phone,
-                created_at=user.created_at,
+                created_at=user.created_at.isoformat() if user.created_at else None,
                 address=address.display_name if address else None,
                 all_added_nodes=len(tree_added),
                 all_edited_nodes=len(tree_edited),
