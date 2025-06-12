@@ -308,7 +308,7 @@ class UsersService:
             tree_added = await self.db.execute(select(Tree).where(Tree.created_by == user_id))
             tree_added = tree_added.scalars().all()
 
-            tree_edited = await self.db.execute(select(Tree).where(Tree.edited_by == user_id))
+            tree_edited = await self.db.execute(select(Tree).where(Tree.updated_by == user_id))
             tree_edited = tree_edited.scalars().all()
 
             tree_family = await self.db.execute(select(Aulet).where(Aulet.user_id == user_id))
