@@ -12,6 +12,12 @@ class AuletService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    def _get_gender_value(self, gender):
+        """Безопасное получение значения gender"""
+        if isinstance(gender, Gender):
+            return gender.value
+        return str(gender) if gender else 'M'
+
     async def get_aulet_tree(self, user_id: int) -> List[dict]:
         """
         Получить дерево семьи в формате для family-chart библиотеки
@@ -81,7 +87,7 @@ class AuletService:
                     'last name': person.last_name,
                     'birthday': person.birthday,
                     'avatar': person.avatar if person.avatar else 'def-ava.png',
-                    'gender': person.gender.value
+                    'gender': self._get_gender_value(person.gender)
                 }
             }
             
@@ -187,21 +193,29 @@ class AuletService:
             if relations_to_add:
                 self.db.add_all(relations_to_add)
             
+            # Сохраняем данные до commit'а для избежания проблем с lazy loading
+            person_id = new_person.id
+            first_name = new_person.first_name
+            last_name = new_person.last_name
+            birthday = new_person.birthday
+            avatar = new_person.avatar
+            gender_value = self._get_gender_value(new_person.gender)
+            
             await self.db.commit()
             
             # Возвращаем созданную персону в формате family-chart
             return {
-                'id': str(new_person.id),
+                'id': str(person_id),
                 'rels': {
                     'spouses': [str(id) for id in (person.rels.spouses or [])],
                     'children': [str(id) for id in (person.rels.children or [])]
                 },
                 'data': {
-                    'first name': new_person.first_name,
-                    'last name': new_person.last_name,
-                    'birthday': new_person.birthday,
-                    'avatar': new_person.avatar if new_person.avatar else 'def-ava.png',
-                    'gender': new_person.gender.value
+                    'first name': first_name,
+                    'last name': last_name,
+                    'birthday': birthday,
+                    'avatar': avatar if avatar else 'def-ava.png',
+                    'gender': gender_value
                 }
             }
             
@@ -282,21 +296,29 @@ class AuletService:
             if relations_to_add:
                 self.db.add_all(relations_to_add)
             
+            # Сохраняем данные до commit'а для избежания проблем с lazy loading
+            person_id = person.id
+            first_name = person.first_name
+            last_name = person.last_name
+            birthday = person.birthday
+            avatar = person.avatar
+            gender_value = self._get_gender_value(person.gender)
+            
             await self.db.commit()
             
             # Возвращаем обновленную персону
             return {
-                'id': str(person.id),
+                'id': str(person_id),
                 'rels': {
                     'spouses': [str(id) for id in (person_update.rels.spouses or [])],
                     'children': [str(id) for id in (person_update.rels.children or [])]
                 },
                 'data': {
-                    'first name': person.first_name,
-                    'last name': person.last_name,
-                    'birthday': person.birthday,
-                    'avatar': person.avatar if person.avatar else 'def-ava.png',
-                    'gender': person.gender.value
+                    'first name': first_name,
+                    'last name': last_name,
+                    'birthday': birthday,
+                    'avatar': avatar if avatar else 'def-ava.png',
+                    'gender': gender_value
                 }
             }
             
