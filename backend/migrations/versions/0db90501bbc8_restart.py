@@ -1,8 +1,8 @@
-"""start
+"""restart
 
-Revision ID: e53a75d491f5
+Revision ID: 0db90501bbc8
 Revises: 
-Create Date: 2025-05-25 13:48:17.482652
+Create Date: 2025-06-12 00:04:36.226108
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e53a75d491f5'
+revision: str = '0db90501bbc8'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,6 +33,29 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('aulet',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('first_name', sa.String(), nullable=False),
+    sa.Column('last_name', sa.String(), nullable=False),
+    sa.Column('gender', sa.Enum('M', 'F', name='gender'), nullable=False),
+    sa.Column('birthday', sa.String(), nullable=False),
+    sa.Column('death_date', sa.String(), nullable=True),
+    sa.Column('avatar', sa.String(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('aulet_relation',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('type', sa.Enum('father', 'mother', 'children', 'spouses', name='relation'), nullable=False),
+    sa.Column('node_id', sa.Integer(), nullable=False),
+    sa.Column('related_node_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('family',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -49,6 +72,45 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('is_deleted', sa.Boolean(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('page_moderator',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('page_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('page_news',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('page_id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('poster', sa.String(length=255), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('page_news_commets',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('page_news_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('comment', sa.Text(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('page_popular_peoples',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('page_id', sa.Integer(), nullable=False),
+    sa.Column('full_name', sa.String(length=255), nullable=False),
+    sa.Column('date_of_birth', sa.DateTime(), nullable=False),
+    sa.Column('death_date', sa.DateTime(), nullable=True),
+    sa.Column('bio', sa.Text(), nullable=True),
+    sa.Column('image', sa.String(length=255), nullable=True),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('pages',
@@ -200,6 +262,12 @@ def downgrade() -> None:
     op.drop_table('tariffs')
     op.drop_table('roles')
     op.drop_table('pages')
+    op.drop_table('page_popular_peoples')
+    op.drop_table('page_news_commets')
+    op.drop_table('page_news')
+    op.drop_table('page_moderator')
     op.drop_table('family')
+    op.drop_table('aulet_relation')
+    op.drop_table('aulet')
     op.drop_table('address')
     # ### end Alembic commands ###

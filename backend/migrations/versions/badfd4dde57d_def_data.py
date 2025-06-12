@@ -1,19 +1,19 @@
-"""Default data for role and tariff
+"""def data
 
-Revision ID: ac9a2a2e598d
-Revises: e53a75d491f5
-Create Date: 2025-05-25 13:48:43.081387
+Revision ID: badfd4dde57d
+Revises: 0db90501bbc8
+Create Date: 2025-06-12 00:04:54.295114
 
 """
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.sql import table, column
+
 
 # revision identifiers, used by Alembic.
-revision: str = 'ac9a2a2e598d'
-down_revision: Union[str, None] = 'e53a75d491f5'
+revision: str = 'badfd4dde57d'
+down_revision: Union[str, None] = '0db90501bbc8'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
