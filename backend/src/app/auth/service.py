@@ -299,7 +299,8 @@ class UsersService:
 
             address = await self.db.execute(
                 select(Address)
-                .join(UserAddress)
+                .select_from(UserAddress)
+                .join(Address, Address.id == UserAddress.address_id)
                 .where(UserAddress.user_id == user_id)
             )
             address = address.scalars().first()
@@ -320,7 +321,7 @@ class UsersService:
                 middle_name=user.middle_name,
                 phone=user.phone,
                 created_at=user.created_at,
-                address=address.display_name,
+                address=address.display_name if address else None,
                 all_added_nodes=len(tree_added),
                 all_edited_nodes=len(tree_edited),
                 all_family_nodes=len(tree_family),
