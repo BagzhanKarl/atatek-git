@@ -56,4 +56,11 @@ class ResetPassword(BaseModel):
     password: str = Field(..., example="password")
     new_password: str = Field(..., example="new_password")
     confirm_password: str = Field(..., example="confirm_password")
-    
+
+class UserSubs(BaseModel):
+    id: int = Field(..., example=1)
+    title: str = Field(..., example="John")
+    status: str = Field(..., example="active")
+
+class UserSubsResponse(BaseModel):
+    subs: list[UserSubs] = Field(..., example=[UserSubs(id=1, title="John", status="active", start_date="2021-01-01", end_date="2021-01-01")])
