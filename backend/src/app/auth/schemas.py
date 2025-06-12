@@ -35,3 +35,14 @@ class LoginUser(BaseModel):
     password: str = Field(..., example="password")
 
 
+class ProfileUser(BaseModel):
+    id: int = Field(..., example=1)
+    first_name: str = Field(..., example="John")
+    last_name: str = Field(..., example="Doe")
+    middle_name: Optional[str] = Field(None, example="John")
+    phone: str = Field(..., example="+77761174378")
+    created_at: datetime = Field(..., example="2021-01-01")
+    address: Optional[str] = Field(None, example="Moscow")
+    all_added_nodes: int = Field(..., example=10)
+    all_edited_nodes: int = Field(..., example=10)
+    all_family_nodes: int = Field(..., example=10)

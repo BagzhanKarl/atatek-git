@@ -3,7 +3,7 @@ from typing import Optional
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from src.app.pages.models import UserPage
+from src.app.pages.models import UserPage, Page
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,8 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.app.auth.models import User
 from src.app.auth.schemas import *
 from src.app.role.models import UserRole, Role
-from src.app.address.models import UserAddress
+from src.app.address.models import UserAddress, Address
 from src.app.tariff.models import UserTariff, Tariff
+from src.app.aulet.models import Aulet
+from src.app.tree.models import Tree
+
 # Инициализация Argon2 хешера
 password_hasher = PasswordHasher()
 
@@ -288,3 +291,37 @@ class UsersService:
             }
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    async def get_profile(self, user_id: int) -> ProfileUser:
+        try:
+            user = await self.db.execute(select(User).where(User.id == user_id))
+            user = user.scalars().first()
+
+            address = await self.db.execute(
+                select(Address)
+                .join(UserAddress)
+                .where(UserAddress.user_id == user_id)
+            )
+            address = address.scalars().first()
+
+            tree_added = await self.db.execute(select(Tree).where(Tree.created_by == user_id))
+            tree_added = tree_added.scalars().all()
+
+            tree_edited = await self.db.execute(select(Tree).where(Tree.edited_by == user_id))
+            tree_edited = tree_edited.scalars().all()
+
+            tree_family = await self.db.execute(select(Aulet).where(Aulet.user_id == user_id))
+            tree_family = tree_family.scalars().all()
+            
+            return ProfileUser(
+                id=user.id,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                middle_name=user.middle_name,
+                phone=user.phone,
+                created_at=user.created_at,
+                address=address.display_name,
+                all_added_nodes=len(tree_added),
+                all_edited_nodes=len(tree_edited),
+                all_family_nodes=len(tree_family),
+            )

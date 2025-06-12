@@ -55,3 +55,10 @@ async def get_me(user_data = Depends(auth.get_user_data_dependency()), db: Async
     service = UsersService(db)
     user = await service.get_user_by_id(int(user_data["sub"]))
     return user
+
+@router.get("/get-profile", response_model=StandardResponse[ProfileUser])
+@autowrap
+async def get_profile(user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
+    service = UsersService(db)
+    user = await service.get_profile(int(user_data["sub"]))
+    return user
