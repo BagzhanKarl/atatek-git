@@ -67,11 +67,17 @@ class AuletService:
         for person in persons:
             person_relations = relations_by_person[person.id]
             
-            # Формируем rels для family-chart (только spouses и children)
+            # Формируем rels для family-chart - включаем все необходимые поля
             rels = {
                 'spouses': person_relations['spouses'],
                 'children': person_relations['children']
             }
+            
+            # Добавляем father и mother если они есть
+            if person_relations['father']:
+                rels['father'] = person_relations['father']
+            if person_relations['mother']:
+                rels['mother'] = person_relations['mother']
             
             # Добавляем родителей в children списки родителей
             if person_relations['father']:
@@ -204,12 +210,20 @@ class AuletService:
             await self.db.commit()
             
             # Возвращаем созданную персону в формате family-chart
+            rels_data = {
+                'spouses': [str(id) for id in (person.rels.spouses or [])],
+                'children': [str(id) for id in (person.rels.children or [])]
+            }
+            
+            # Добавляем father и mother если они есть
+            if person.rels.father:
+                rels_data['father'] = str(person.rels.father)
+            if person.rels.mother:
+                rels_data['mother'] = str(person.rels.mother)
+            
             return {
                 'id': str(person_id),
-                'rels': {
-                    'spouses': [str(id) for id in (person.rels.spouses or [])],
-                    'children': [str(id) for id in (person.rels.children or [])]
-                },
+                'rels': rels_data,
                 'data': {
                     'first name': first_name,
                     'last name': last_name,
@@ -307,12 +321,20 @@ class AuletService:
             await self.db.commit()
             
             # Возвращаем обновленную персону
+            rels_data = {
+                'spouses': [str(id) for id in (person_update.rels.spouses or [])],
+                'children': [str(id) for id in (person_update.rels.children or [])]
+            }
+            
+            # Добавляем father и mother если они есть
+            if person_update.rels.father:
+                rels_data['father'] = str(person_update.rels.father)
+            if person_update.rels.mother:
+                rels_data['mother'] = str(person_update.rels.mother)
+            
             return {
                 'id': str(person_id),
-                'rels': {
-                    'spouses': [str(id) for id in (person_update.rels.spouses or [])],
-                    'children': [str(id) for id in (person_update.rels.children or [])]
-                },
+                'rels': rels_data,
                 'data': {
                     'first name': first_name,
                     'last name': last_name,
