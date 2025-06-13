@@ -37,5 +37,10 @@ class UserTariff(Base):
 
     t_family_count: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
 
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    start_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    end_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), server_onupdate=func.now(), nullable=True)
