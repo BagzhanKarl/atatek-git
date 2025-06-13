@@ -1,16 +1,16 @@
-name: Simple Update
+name: Full Deploy with Rebuild
 
 on:
   push:
     tags:
-      - 'update'
+      - 'rebuild'
   workflow_dispatch:
 
 jobs:
-  update:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Update and restart
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -19,14 +19,15 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             git pull origin main
+            docker compose down -v
             export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            docker compose restart backend
+            docker compose up -d --build
 
   migrate:
-    needs: update
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Migrate data for alembic
