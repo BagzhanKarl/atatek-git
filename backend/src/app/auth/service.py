@@ -382,7 +382,16 @@ class UsersService:
                 .where(UserTariff.user_id == user_id)
             )
             subs = subs.scalars().all()
-            return UserSubsResponse(subs=subs).model_dump()
+            return UserSubsResponse(
+                subs=[
+                    UserSubs(
+                        id=sub.id,
+                        title=sub.name,
+                        status="active" if sub.is_active else "inactive",
+                    ).model_dump()
+                    for sub in subs
+                ]
+                ).model_dump()
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
 
