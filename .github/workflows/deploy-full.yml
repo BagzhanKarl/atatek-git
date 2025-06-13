@@ -1,4 +1,4 @@
-name: Full Deploy with Rebuild
+name: Full Deploy with Rebuild xd
 
 on:
   push:
