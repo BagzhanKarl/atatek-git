@@ -372,28 +372,3 @@ class UsersService:
             
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
-
-    async def get_user_subs(self, user_id: int) -> UserSubsResponse:
-        try:
-            subs = await self.db.execute(
-                select(Tariff)
-                .select_from(UserTariff)
-                .join(Tariff, Tariff.id == UserTariff.tariff_id)
-                .where(UserTariff.user_id == user_id)
-            )
-            subs = subs.scalars().all()
-            return UserSubsResponse(
-                subs=[
-                    UserSubs(
-                        id=sub.id,
-                        title=sub.name,
-                        status="active" if sub.is_active else "inactive",
-                    ).model_dump()
-                    for sub in subs
-                ]
-                ).model_dump()
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
-
-
-    

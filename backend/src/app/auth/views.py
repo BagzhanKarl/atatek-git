@@ -77,10 +77,3 @@ async def reset_password(user_pass: ResetPassword, user_data = Depends(auth.get_
     service = UsersService(db)
     user = await service.reset_password(int(user_data["sub"]), user_pass)
     return user
-
-@router.get("/get-user-subs", response_model=StandardResponse[UserSubsResponse])
-@autowrap
-async def get_user_subs(user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
-    service = UsersService(db)
-    user = await service.get_user_subs(int(user_data["sub"]))
-    return user
