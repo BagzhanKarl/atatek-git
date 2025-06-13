@@ -31,14 +31,14 @@ async def get_juz_data(main_gen_juz: int, user_data = Depends(auth.get_user_data
     service = PageService(db)
     return await service.get_pages_from_main_juz(main_gen_juz, int(user_data["sub"]))
 
-    
+
 
 @router.post("/{page_id}/moderator", response_model=StandardResponse[PageResponse])
 @autowrap
 async def set_moderator(page_id: int, moderator_id: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
     user_id = int(user_data["sub"])
     service = PageService(db)
-    return await service.set_moderator(page_id, moderator_id, user_id)
+    return await service.set_moderator(page_id, moderator_id, user_id) 
 
 @router.get("/moderator/{moderator_id}", response_model=StandardResponse[PageResponseList])
 @autowrap
