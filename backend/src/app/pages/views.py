@@ -29,7 +29,7 @@ async def get_page_by_id(page_id: int, user_data = Depends(auth.get_user_data_de
 @autowrap
 async def get_juz_data(main_gen_juz: int, user_data = Depends(auth.get_user_data_dependency()), db: AsyncSession = Depends(get_db)):
     service = PageService(db)
-    return await service.get_pages_from_main_juz(main_gen_juz)
+    return await service.get_pages_from_main_juz(main_gen_juz, int(user_data["sub"]))
 
 @router.post("/{page_id}/moderator", response_model=StandardResponse[PageResponse])
 @autowrap
