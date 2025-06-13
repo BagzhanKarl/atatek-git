@@ -1,4 +1,4 @@
-name: Simple Update
+name: Simple Update code and restart backend
 
 on:
   push:
