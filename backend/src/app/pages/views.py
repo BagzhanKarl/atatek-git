@@ -53,4 +53,3 @@ async def delete_moderator(page_id: int, moderator_id: int, user_data = Depends(
     service = PageService(db)
     return await service.delete_moderator(page_id, moderator_id, user_id)
 
-
