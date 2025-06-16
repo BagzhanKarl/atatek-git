@@ -372,3 +372,23 @@ class UsersService:
             
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    async def get_my_page(self, user_id: int):
+        try:
+            user_page = await self.db.execute(select(UserPage).where(UserPage.user_id == user_id))
+            user_page = user_page.scalars().first()
+
+            page = await self.db.execute(select(Page).where(Page.id == user_page.page_id))
+            page = page.scalars().first()
+            response = {
+                "id": page.id,
+                "title": page.title,
+                "t_id": page.tree_id,
+                "bread1": page.bread1,
+                "bread2": page.bread2,
+                "bread3": page.bread3,
+                
+            }
+            return response if response else []
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
