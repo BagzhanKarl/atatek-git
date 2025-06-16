@@ -377,7 +377,10 @@ class UsersService:
         try:
             user_page = await self.db.execute(select(UserPage).where(UserPage.user_id == user_id))
             user_page = user_page.scalars().first()
-
+            
+            if not user_page:
+                return []
+            
             page = await self.db.execute(select(Page).where(Page.id == user_page.page_id))
             page = page.scalars().first()
             response = {
