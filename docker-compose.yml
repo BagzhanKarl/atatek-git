@@ -61,7 +61,15 @@ services:
       - app_network
     restart: unless-stopped
 
-
+  services:
+    frontend:
+      image: frontend:latest
+      ports:
+        - "3000:3000"
+      environment:
+        - NODE_ENV=production
+      container_name: atatek-frontend
+      restart: unless-stopped
 networks:
   app_network:
     driver: bridge
