@@ -4,3 +4,4 @@ __pycache__/
 *$py.class 
 docker-compose.yml
 .gitignore
+frontend/node_modules
